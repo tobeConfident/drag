@@ -1,0 +1,11 @@
+.layout div {
+	width: 100px;
+	height: 100px;
+	background: red;
+}
+.layout div:first-child{
+	background: blue;
+}
+.layout div:last-child{
+	background: lightblue;
+}
