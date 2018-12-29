@@ -10,12 +10,36 @@ export default class ShowcaseLayout extends Component {
            key:"1",
         },{
             key:"2",
-        }]
+        }],
+        layouts: { lg: [] },
     };
     componentWillMount() {
-        // 在页面渲染前取出
-        this.state.arr = JSON.parse(sessionStorage.getItem('dragArr')) || [];
+        this.generateLayout(); // 执行初始化layouts函数
+        // 取出
+        this.setState({
+            arr: JSON.parse(sessionStorage.getItem('dragArr')) || [],
+            layouts: JSON.parse(sessionStorage.getItem('layouts')) || []
+        })      
     }
+    // 初始化layouts
+    generateLayout = () => {
+        const dragArr = JSON.parse(sessionStorage.getItem('dragArr')) || [];
+        const json = dragArr.map((item) => {
+            return (
+                {
+                    x: Math.ceil(Math.random() * 3),
+                    y: Math.ceil(Math.random() * 2),
+                    w: Math.ceil(Math.random() * 3),
+                    h: Math.ceil(Math.random() * 2),
+                    i: item.key.toString(),
+                }
+            );
+        });
+        const tempJson = {lg: json}
+        this.setState({
+            layouts: tempJson
+        })
+    };
     /**
      * 两种方式实现删除操作
      * 1.对DOM节点进行操作
@@ -35,23 +59,31 @@ export default class ShowcaseLayout extends Component {
     handleAdd = () => {
         let dragArr = this.state.arr;
         let key = Math.ceil(Math.random()*100);
-        let tempJson = {key:key};
+        let tempJson = {key:key,width:100,height:100};
         dragArr.push(tempJson);
         this.setState({
             arr: dragArr
         })
         // 存储
         sessionStorage.setItem('dragArr',JSON.stringify(dragArr));
-    }
+    };
+    // 改变大小
+    onLayoutChange = (layout, layouts) => {
+        // 存储
+        sessionStorage.setItem('layouts',JSON.stringify(layouts));
+    };
     render() {
-        const dragArr = this.state.arr;
+        const {arr,layouts} = this.state || [];
         return (
             <div>
                 <button onClick={this.handleAdd}>添加</button>
-                <ResponsiveReactGridLayout>
-                    {dragArr.map((item,index)=>{
+                <ResponsiveReactGridLayout
+                    layouts={layouts}
+                    onLayoutChange={this.onLayoutChange}
+                >
+                    {arr.map((item,index)=>{
                         return (
-                            <div key={item.key} id={item.key} style={{width:100,height:100}}>
+                            <div key={item.key} id={item.key}>
                                 <div className="hide-button" onClick={this.onDelete.bind(this, index)}>
                                     &times;
                                 </div>
